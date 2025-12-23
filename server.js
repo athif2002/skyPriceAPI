@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 
 const app = express();
