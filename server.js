@@ -1,6 +1,32 @@
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
 
+const allowedOrigins = [
+  "http://localhost:5173",          // local React (Vite)
+  "http://localhost:3000",          // optional
+  "https://your-frontend.vercel.app" // production frontend
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow non-browser requests (Postman, n8n, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
+    credentials: true
+  })
+);
+
+// Handle preflight requests
+app.options("*", cors());
 const app = express();
 app.use(express.json());
 
