@@ -87,6 +87,54 @@ app.post("/v1/alerts/update", authenticate, async (req, res) => {
   }
 });
 
+//Insert API
+// ─────────────────────────────────────────────
+// POST /v1/alerts/create
+// ─────────────────────────────────────────────
+app.post("/v1/alerts/create", authenticate, async (req, res) => {
+  try {
+    const { email, from, to, budget } = req.body;
+
+    // ── Validation
+    if (!email || typeof email !== "string") {
+      return res.status(400).json({ error: "Invalid or missing email" });
+    }
+
+    if (!from || typeof from !== "string") {
+      return res.status(400).json({ error: "Invalid or missing from" });
+    }
+
+    if (!to || typeof to !== "string") {
+      return res.status(400).json({ error: "Invalid or missing to" });
+    }
+
+    if (typeof budget !== "number" || budget <= 0) {
+      return res.status(400).json({ error: "Invalid budget" });
+    }
+
+    const alerts = await getCollection();
+
+    const doc = {
+      email,
+      from,
+      to,
+      budget,
+      created_at: new Date()
+      // last_alert_price → intentionally omitted
+      // last_alert_sent_at → intentionally omitted
+    };
+
+    const result = await alerts.insertOne(doc);
+
+    res.status(201).json({
+      success: true,
+      id: result.insertedId.toString()
+    });
+  } catch (err) {
+    console.error("Create failed:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 // ─────────────────────────────────────────────
 app.listen(3000, () => {
   console.log("API running on port 3000");
