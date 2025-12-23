@@ -1,6 +1,8 @@
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
 
+const app = express();
+app.use(express.json());
 const allowedOrigins = [
   "http://localhost:5173",          // local React (Vite)
   "http://localhost:3000",          // optional
@@ -27,8 +29,7 @@ app.use(
 
 // Handle preflight requests
 app.options("*", cors());
-const app = express();
-app.use(express.json());
+
 
 // ─────────────────────────────────────────────
 // CONFIG
