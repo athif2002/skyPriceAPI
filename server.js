@@ -5,7 +5,8 @@ import { MongoClient, ObjectId } from "mongodb";
 const app = express();
 app.use(express.json());
 const allowedOrigins = [
-  "http://localhost:5173",          // local React (Vite)
+  "http://localhost:5173",
+  "http://localhost:8080",        // local React (Vite)
   "http://localhost:3000",          // optional
   "https://your-frontend.vercel.app" // production frontend
 ];
