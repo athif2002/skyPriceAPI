@@ -86,3 +86,74 @@ export function validateEmailQuery(email) {
   return { valid: true };
 }
 
+/**
+ * Validate alert edit data (allows partial updates)
+ * @param {object} data - Edit data
+ * @returns {{valid: boolean, error?: string}} Validation result
+ */
+export function validateAlertEdit(data) {
+  const { id, email, from, to, budget } = data;
+
+  // ID is required
+  if (!id || typeof id !== "string") {
+    return { valid: false, error: "Invalid or missing id" };
+  }
+
+  if (!isValidObjectId(id)) {
+    return { valid: false, error: "Invalid ObjectId format" };
+  }
+
+  // At least one field must be provided for update
+  const hasUpdateFields = email !== undefined || from !== undefined || to !== undefined || budget !== undefined;
+  if (!hasUpdateFields) {
+    return { valid: false, error: "At least one field (email, from, to, budget) must be provided for update" };
+  }
+
+  // Validate email if provided
+  if (email !== undefined) {
+    if (typeof email !== "string" || !isValidEmail(email)) {
+      return { valid: false, error: "Invalid email format" };
+    }
+  }
+
+  // Validate from if provided
+  if (from !== undefined) {
+    if (typeof from !== "string" || from.trim().length === 0) {
+      return { valid: false, error: "Invalid from field" };
+    }
+  }
+
+  // Validate to if provided
+  if (to !== undefined) {
+    if (typeof to !== "string" || to.trim().length === 0) {
+      return { valid: false, error: "Invalid to field" };
+    }
+  }
+
+  // Validate budget if provided
+  if (budget !== undefined) {
+    if (typeof budget !== "number" || budget <= 0) {
+      return { valid: false, error: "Invalid budget" };
+    }
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Validate alert ID parameter
+ * @param {string} id - ID to validate
+ * @returns {{valid: boolean, error?: string}} Validation result
+ */
+export function validateAlertId(id) {
+  if (!id || typeof id !== "string") {
+    return { valid: false, error: "Invalid or missing id" };
+  }
+
+  if (!isValidObjectId(id)) {
+    return { valid: false, error: "Invalid ObjectId format" };
+  }
+
+  return { valid: true };
+}
+
