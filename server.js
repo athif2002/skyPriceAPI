@@ -1,201 +1,65 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient, ObjectId } from "mongodb";
+import alertsRoutes from "./routes/alerts.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import corsConfig from "./config/cors.js";
 
 const app = express();
+
+// Middleware
 app.use(express.json());
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:8080",        // local React (Vite)
-  "http://localhost:3000",          // optional
-  "https://your-frontend.vercel.app" // production frontend
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow non-browser requests (Postman, n8n, curl)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
-    credentials: true
-  })
-);
+app.use(corsConfig);
 
 // Handle preflight requests
 app.options("*", cors());
 
-
-// ─────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────
-const {
-  MONGO_URI,
-  API_KEY,
-  DB_NAME = "skyPrice",
-  COLLECTION = "flight_alerts"
-} = process.env;
-
-if (!MONGO_URI || !API_KEY) {
-  throw new Error("Missing environment variables");
-}
-
-// ─────────────────────────────────────────────
-// MongoDB connection (cached)
-// ─────────────────────────────────────────────
-let client;
-async function getCollection() {
-  if (!client) {
-    client = new MongoClient(MONGO_URI);
-    await client.connect();
-  }
-  return client.db(DB_NAME).collection(COLLECTION);
-}
-
-// ─────────────────────────────────────────────
-// Middleware: API key auth
-// ─────────────────────────────────────────────
-function authenticate(req, res, next) {
-  const key = req.headers["x-api-key"];
-  if (!key || key !== API_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-}
-
-// ─────────────────────────────────────────────
-// POST /v1/alerts/update
-// ─────────────────────────────────────────────
-app.post("/v1/alerts/update", authenticate, async (req, res) => {
-  try {
-    const { id, price } = req.body;
-
-    // ── Validation
-    if (!id || typeof id !== "string") {
-      return res.status(400).json({ error: "Invalid or missing id" });
-    }
-
-    if (typeof price !== "number" || price <= 0) {
-      return res.status(400).json({ error: "Invalid price" });
-    }
-
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid ObjectId" });
-    }
-
-    const alerts = await getCollection();
-
-    const result = await alerts.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          last_alert_price: price,
-          last_alert_sent_at: new Date()
-        }
-      }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ error: "Document not found" });
-    }
-
-    res.json({
-      success: true,
-      updated: result.modifiedCount === 1
-    });
-  } catch (err) {
-    console.error("Update failed:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "API is running",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-//Insert API
-// ─────────────────────────────────────────────
-// POST /v1/alerts/create
-// ─────────────────────────────────────────────
-app.post("/v1/alerts/create", authenticate, async (req, res) => {
-  try {
-    const { email, from, to, budget } = req.body;
+// API Routes
+app.use("/v1/alerts", alertsRoutes);
 
-    // ── Validation
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ error: "Invalid or missing email" });
-    }
-
-    if (!from || typeof from !== "string") {
-      return res.status(400).json({ error: "Invalid or missing from" });
-    }
-
-    if (!to || typeof to !== "string") {
-      return res.status(400).json({ error: "Invalid or missing to" });
-    }
-
-    if (typeof budget !== "number" || budget <= 0) {
-      return res.status(400).json({ error: "Invalid budget" });
-    }
-
-    const alerts = await getCollection();
-
-    const doc = {
-      email,
-      from,
-      to,
-      budget,
-      created_at: new Date()
-      // last_alert_price → intentionally omitted
-      // last_alert_sent_at → intentionally omitted
-    };
-
-    const result = await alerts.insertOne(doc);
-
-    res.status(201).json({
-      success: true,
-      id: result.insertedId.toString()
-    });
-  } catch (err) {
-    console.error("Create failed:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-// ─────────────────────────────────────────────
-
-// ─────────────────────────────────────────────
-// GET /v1/alerts?email=
-// ─────────────────────────────────────────────
-app.get("/v1/alerts", authenticate, async (req, res) => {
-  try {
-    const { email } = req.query;
-
-    // ── Validation
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ error: "Invalid or missing email" });
-    }
-
-    const alerts = await getCollection();
-
-    const results = await alerts
-      .find({ email })
-      .sort({ created_at: -1 }) // newest first
-      .toArray();
-
-    res.json({
-      success: true,
-      count: results.length,
-      data: results
-    });
-  } catch (err) {
-    console.error("Fetch alerts failed:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "Route not found",
+  });
 });
 
-app.listen(3000, () => {
-  console.log("API running on port 3000");
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Validate environment variables
+if (!process.env.MONGO_URI) {
+  console.error("Error: MONGO_URI environment variable is required");
+  process.exit(1);
+}
+
+// Start server
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`API running on port ${PORT}`);
+});
+
+// Graceful shutdown
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM signal received: closing HTTP server");
+  const { closeConnection } = await import("./config/database.js");
+  await closeConnection();
+  process.exit(0);
+});
+
+process.on("SIGINT", async () => {
+  console.log("SIGINT signal received: closing HTTP server");
+  const { closeConnection } = await import("./config/database.js");
+  await closeConnection();
+  process.exit(0);
 });
