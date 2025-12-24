@@ -165,6 +165,37 @@ app.post("/v1/alerts/create", authenticate, async (req, res) => {
   }
 });
 // ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// GET /v1/alerts?email=
+// ─────────────────────────────────────────────
+app.get("/v1/alerts", authenticate, async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    // ── Validation
+    if (!email || typeof email !== "string") {
+      return res.status(400).json({ error: "Invalid or missing email" });
+    }
+
+    const alerts = await getCollection();
+
+    const results = await alerts
+      .find({ email })
+      .sort({ created_at: -1 }) // newest first
+      .toArray();
+
+    res.json({
+      success: true,
+      count: results.length,
+      data: results
+    });
+  } catch (err) {
+    console.error("Fetch alerts failed:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(3000, () => {
   console.log("API running on port 3000");
 });
