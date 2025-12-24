@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(corsConfig);
 
 // Handle preflight requests
-app.options("*", cors());
+app.options("*", corsConfig);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
