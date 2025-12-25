@@ -51,7 +51,8 @@ export function validateAlertCreation(data) {
     return { valid: false, error: "Invalid or missing to" };
   }
 
-  if (typeof budget !== "number" || budget <= 0) {
+  // Budget can be null or a positive number
+  if (budget !== null && (typeof budget !== "number" || budget <= 0)) {
     return { valid: false, error: "Invalid budget" };
   }
 
@@ -192,7 +193,8 @@ export function validateAlertEdit(data) {
 
   // Validate budget if provided
   if (budget !== undefined) {
-    if (typeof budget !== "number" || budget <= 0) {
+    // Budget can be null or a positive number
+    if (budget !== null && (typeof budget !== "number" || budget <= 0)) {
       return { valid: false, error: "Invalid budget" };
     }
   }
