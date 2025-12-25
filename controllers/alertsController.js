@@ -69,6 +69,7 @@ export async function createAlert(req, res) {
     end_range, 
     roundTrip, 
     return_date, 
+    departureDate,
     price_mode, 
     alert_type 
   } = req.body;
@@ -99,6 +100,9 @@ export async function createAlert(req, res) {
   }
   if (return_date !== undefined) {
     doc.return_date = return_date;
+  }
+  if (departureDate !== undefined) {
+    doc.departureDate = departureDate;
   }
   if (price_mode !== undefined) {
     doc.price_mode = price_mode.trim();
@@ -169,6 +173,7 @@ export async function editAlert(req, res) {
     end_range, 
     roundTrip, 
     return_date, 
+    departureDate,
     price_mode, 
     alert_type 
   } = req.body;
@@ -201,6 +206,9 @@ export async function editAlert(req, res) {
   }
   if (return_date !== undefined) {
     updateFields.return_date = return_date;
+  }
+  if (departureDate !== undefined) {
+    updateFields.departureDate = departureDate;
   }
   if (price_mode !== undefined) {
     updateFields.price_mode = price_mode.trim();

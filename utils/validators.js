@@ -36,7 +36,7 @@ export function isValidDate(date) {
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 export function validateAlertCreation(data) {
-  const { email, from, to, budget, start_range, end_range, roundTrip, return_date, price_mode, alert_type } = data;
+  const { email, from, to, budget, start_range, end_range, roundTrip, return_date, departureDate, price_mode, alert_type } = data;
 
   // Required fields
   if (!email || typeof email !== "string" || !isValidEmail(email)) {
@@ -78,6 +78,12 @@ export function validateAlertCreation(data) {
   if (return_date !== undefined) {
     if (typeof return_date !== "string" || !isValidDate(return_date)) {
       return { valid: false, error: "Invalid return_date date format" };
+    }
+  }
+
+  if (departureDate !== undefined) {
+    if (typeof departureDate !== "string" || !isValidDate(departureDate)) {
+      return { valid: false, error: "Invalid departureDate date format" };
     }
   }
 
@@ -142,7 +148,7 @@ export function validateEmailQuery(email) {
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 export function validateAlertEdit(data) {
-  const { id, email, from, to, budget, start_range, end_range, roundTrip, return_date, price_mode, alert_type } = data;
+  const { id, email, from, to, budget, start_range, end_range, roundTrip, return_date, departureDate, price_mode, alert_type } = data;
 
   // ID is required
   if (!id || typeof id !== "string") {
@@ -163,6 +169,7 @@ export function validateAlertEdit(data) {
     end_range !== undefined ||
     roundTrip !== undefined ||
     return_date !== undefined ||
+    departureDate !== undefined ||
     price_mode !== undefined ||
     alert_type !== undefined;
 
@@ -221,6 +228,12 @@ export function validateAlertEdit(data) {
   if (return_date !== undefined) {
     if (typeof return_date !== "string" || !isValidDate(return_date)) {
       return { valid: false, error: "Invalid return_date date format" };
+    }
+  }
+
+  if (departureDate !== undefined) {
+    if (typeof departureDate !== "string" || !isValidDate(departureDate)) {
+      return { valid: false, error: "Invalid departureDate date format" };
     }
   }
 
