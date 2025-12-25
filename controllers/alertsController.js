@@ -79,9 +79,13 @@ export async function createAlert(req, res) {
     email: email.trim().toLowerCase(),
     from: from.trim(),
     to: to.trim(),
-    budget,
     created_at: new Date(),
   };
+
+  // Add budget only if provided (can be null or a number)
+  if (budget !== undefined) {
+    doc.budget = budget;
+  }
 
   // Add optional fields if provided
   if (start_range !== undefined) {

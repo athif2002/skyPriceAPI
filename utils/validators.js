@@ -51,8 +51,8 @@ export function validateAlertCreation(data) {
     return { valid: false, error: "Invalid or missing to" };
   }
 
-  // Budget can be null or a positive number
-  if (budget !== null && (typeof budget !== "number" || budget <= 0)) {
+  // Budget is optional - can be undefined, null, or a positive number
+  if (budget !== undefined && budget !== null && (typeof budget !== "number" || budget <= 0)) {
     return { valid: false, error: "Invalid budget" };
   }
 
