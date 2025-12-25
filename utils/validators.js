@@ -20,13 +20,25 @@ export function isValidObjectId(id) {
 }
 
 /**
+ * Validate date string
+ * @param {string} date - Date string to validate
+ * @returns {boolean} True if valid date
+ */
+export function isValidDate(date) {
+  if (typeof date !== "string") return false;
+  const dateObj = new Date(date);
+  return dateObj instanceof Date && !isNaN(dateObj);
+}
+
+/**
  * Validate alert creation data
  * @param {object} data - Alert data
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 export function validateAlertCreation(data) {
-  const { email, from, to, budget } = data;
+  const { email, from, to, budget, start_range, end_range, roundTrip, return_date, price_mode, alert_type } = data;
 
+  // Required fields
   if (!email || typeof email !== "string" || !isValidEmail(email)) {
     return { valid: false, error: "Invalid or missing email" };
   }
@@ -41,6 +53,43 @@ export function validateAlertCreation(data) {
 
   if (typeof budget !== "number" || budget <= 0) {
     return { valid: false, error: "Invalid budget" };
+  }
+
+  // Optional fields validation
+  if (start_range !== undefined) {
+    if (typeof start_range !== "string" || !isValidDate(start_range)) {
+      return { valid: false, error: "Invalid start_range date format" };
+    }
+  }
+
+  if (end_range !== undefined) {
+    if (typeof end_range !== "string" || !isValidDate(end_range)) {
+      return { valid: false, error: "Invalid end_range date format" };
+    }
+  }
+
+  if (roundTrip !== undefined) {
+    if (typeof roundTrip !== "boolean") {
+      return { valid: false, error: "roundTrip must be a boolean" };
+    }
+  }
+
+  if (return_date !== undefined) {
+    if (typeof return_date !== "string" || !isValidDate(return_date)) {
+      return { valid: false, error: "Invalid return_date date format" };
+    }
+  }
+
+  if (price_mode !== undefined) {
+    if (typeof price_mode !== "string" || price_mode.trim().length === 0) {
+      return { valid: false, error: "Invalid price_mode" };
+    }
+  }
+
+  if (alert_type !== undefined) {
+    if (typeof alert_type !== "string" || alert_type.trim().length === 0) {
+      return { valid: false, error: "Invalid alert_type" };
+    }
   }
 
   return { valid: true };
@@ -92,7 +141,7 @@ export function validateEmailQuery(email) {
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 export function validateAlertEdit(data) {
-  const { id, email, from, to, budget } = data;
+  const { id, email, from, to, budget, start_range, end_range, roundTrip, return_date, price_mode, alert_type } = data;
 
   // ID is required
   if (!id || typeof id !== "string") {
@@ -104,9 +153,20 @@ export function validateAlertEdit(data) {
   }
 
   // At least one field must be provided for update
-  const hasUpdateFields = email !== undefined || from !== undefined || to !== undefined || budget !== undefined;
+  const hasUpdateFields = 
+    email !== undefined || 
+    from !== undefined || 
+    to !== undefined || 
+    budget !== undefined ||
+    start_range !== undefined ||
+    end_range !== undefined ||
+    roundTrip !== undefined ||
+    return_date !== undefined ||
+    price_mode !== undefined ||
+    alert_type !== undefined;
+
   if (!hasUpdateFields) {
-    return { valid: false, error: "At least one field (email, from, to, budget) must be provided for update" };
+    return { valid: false, error: "At least one field must be provided for update" };
   }
 
   // Validate email if provided
@@ -134,6 +194,43 @@ export function validateAlertEdit(data) {
   if (budget !== undefined) {
     if (typeof budget !== "number" || budget <= 0) {
       return { valid: false, error: "Invalid budget" };
+    }
+  }
+
+  // Validate optional date fields
+  if (start_range !== undefined) {
+    if (typeof start_range !== "string" || !isValidDate(start_range)) {
+      return { valid: false, error: "Invalid start_range date format" };
+    }
+  }
+
+  if (end_range !== undefined) {
+    if (typeof end_range !== "string" || !isValidDate(end_range)) {
+      return { valid: false, error: "Invalid end_range date format" };
+    }
+  }
+
+  if (roundTrip !== undefined) {
+    if (typeof roundTrip !== "boolean") {
+      return { valid: false, error: "roundTrip must be a boolean" };
+    }
+  }
+
+  if (return_date !== undefined) {
+    if (typeof return_date !== "string" || !isValidDate(return_date)) {
+      return { valid: false, error: "Invalid return_date date format" };
+    }
+  }
+
+  if (price_mode !== undefined) {
+    if (typeof price_mode !== "string" || price_mode.trim().length === 0) {
+      return { valid: false, error: "Invalid price_mode" };
+    }
+  }
+
+  if (alert_type !== undefined) {
+    if (typeof alert_type !== "string" || alert_type.trim().length === 0) {
+      return { valid: false, error: "Invalid alert_type" };
     }
   }
 

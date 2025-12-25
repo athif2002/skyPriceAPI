@@ -60,7 +60,19 @@ export async function createAlert(req, res) {
     });
   }
 
-  const { email, from, to, budget } = req.body;
+  const { 
+    email, 
+    from, 
+    to, 
+    budget, 
+    start_range, 
+    end_range, 
+    roundTrip, 
+    return_date, 
+    price_mode, 
+    alert_type 
+  } = req.body;
+  
   const alerts = await getCollection();
 
   const doc = {
@@ -70,6 +82,26 @@ export async function createAlert(req, res) {
     budget,
     created_at: new Date(),
   };
+
+  // Add optional fields if provided
+  if (start_range !== undefined) {
+    doc.start_range = start_range;
+  }
+  if (end_range !== undefined) {
+    doc.end_range = end_range;
+  }
+  if (roundTrip !== undefined) {
+    doc.roundTrip = roundTrip;
+  }
+  if (return_date !== undefined) {
+    doc.return_date = return_date;
+  }
+  if (price_mode !== undefined) {
+    doc.price_mode = price_mode.trim();
+  }
+  if (alert_type !== undefined) {
+    doc.alert_type = alert_type.trim();
+  }
 
   const result = await alerts.insertOne(doc);
 
@@ -124,11 +156,24 @@ export async function editAlert(req, res) {
     });
   }
 
-  const { email, from, to, budget } = req.body;
+  const { 
+    email, 
+    from, 
+    to, 
+    budget, 
+    start_range, 
+    end_range, 
+    roundTrip, 
+    return_date, 
+    price_mode, 
+    alert_type 
+  } = req.body;
+  
   const alerts = await getCollection();
 
   // Build update object with only provided fields
   const updateFields = {};
+  
   if (email !== undefined) {
     updateFields.email = email.trim().toLowerCase();
   }
@@ -140,6 +185,24 @@ export async function editAlert(req, res) {
   }
   if (budget !== undefined) {
     updateFields.budget = budget;
+  }
+  if (start_range !== undefined) {
+    updateFields.start_range = start_range;
+  }
+  if (end_range !== undefined) {
+    updateFields.end_range = end_range;
+  }
+  if (roundTrip !== undefined) {
+    updateFields.roundTrip = roundTrip;
+  }
+  if (return_date !== undefined) {
+    updateFields.return_date = return_date;
+  }
+  if (price_mode !== undefined) {
+    updateFields.price_mode = price_mode.trim();
+  }
+  if (alert_type !== undefined) {
+    updateFields.alert_type = alert_type.trim();
   }
 
   // Add updated_at timestamp
