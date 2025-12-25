@@ -20,14 +20,38 @@ export function isValidObjectId(id) {
 }
 
 /**
- * Validate date string
+ * Validate and format date string to YYYY-MM-DD format
+ * @param {string} date - Date string to validate
+ * @returns {{valid: boolean, formatted?: string, error?: string}} Validation result with formatted date
+ */
+export function validateAndFormatDate(date) {
+  if (typeof date !== "string") {
+    return { valid: false, error: "Date must be a string" };
+  }
+
+  // Try to parse the date
+  const dateObj = new Date(date);
+  if (!(dateObj instanceof Date) || isNaN(dateObj)) {
+    return { valid: false, error: "Invalid date format" };
+  }
+
+  // Format to YYYY-MM-DD
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const formatted = `${year}-${month}-${day}`;
+
+  return { valid: true, formatted };
+}
+
+/**
+ * Validate date string (legacy function for backward compatibility)
  * @param {string} date - Date string to validate
  * @returns {boolean} True if valid date
  */
 export function isValidDate(date) {
-  if (typeof date !== "string") return false;
-  const dateObj = new Date(date);
-  return dateObj instanceof Date && !isNaN(dateObj);
+  const result = validateAndFormatDate(date);
+  return result.valid;
 }
 
 /**

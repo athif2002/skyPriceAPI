@@ -6,7 +6,21 @@ import {
   validateEmailQuery,
   validateAlertEdit,
   validateAlertId,
+  validateAndFormatDate,
 } from "../utils/validators.js";
+
+/**
+ * Format date to YYYY-MM-DD format
+ * @param {string} date - Date string to format
+ * @returns {string} Formatted date in YYYY-MM-DD format
+ */
+function formatDate(date) {
+  const dateObj = new Date(date);
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 /**
  * Update an alert's price
@@ -90,19 +104,19 @@ export async function createAlert(req, res) {
 
   // Add optional fields if provided
   if (start_range !== undefined) {
-    doc.start_range = start_range;
+    doc.start_range = formatDate(start_range);
   }
   if (end_range !== undefined) {
-    doc.end_range = end_range;
+    doc.end_range = formatDate(end_range);
   }
   if (roundTrip !== undefined) {
     doc.roundTrip = roundTrip;
   }
   if (return_date !== undefined) {
-    doc.return_date = return_date;
+    doc.return_date = formatDate(return_date);
   }
   if (departureDate !== undefined) {
-    doc.departureDate = departureDate;
+    doc.departureDate = formatDate(departureDate);
   }
   if (price_mode !== undefined) {
     doc.price_mode = price_mode.trim();
@@ -196,19 +210,19 @@ export async function editAlert(req, res) {
     updateFields.budget = budget;
   }
   if (start_range !== undefined) {
-    updateFields.start_range = start_range;
+    updateFields.start_range = formatDate(start_range);
   }
   if (end_range !== undefined) {
-    updateFields.end_range = end_range;
+    updateFields.end_range = formatDate(end_range);
   }
   if (roundTrip !== undefined) {
     updateFields.roundTrip = roundTrip;
   }
   if (return_date !== undefined) {
-    updateFields.return_date = return_date;
+    updateFields.return_date = formatDate(return_date);
   }
   if (departureDate !== undefined) {
-    updateFields.departureDate = departureDate;
+    updateFields.departureDate = formatDate(departureDate);
   }
   if (price_mode !== undefined) {
     updateFields.price_mode = price_mode.trim();
