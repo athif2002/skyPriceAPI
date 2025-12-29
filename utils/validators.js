@@ -323,3 +323,33 @@ export function validateClusterCreation(data) {
   return { valid: true };
 }
 
+/**
+ * Validate cluster update data
+ * @param {object} data - Cluster update data
+ * @returns {{valid: boolean, error?: string}} Validation result
+ */
+export function validateClusterUpdate(data) {
+  const { alert_id, best_dates } = data;
+
+  // Required field: alert_id
+  if (!alert_id || typeof alert_id !== "string") {
+    return { valid: false, error: "Invalid or missing alert_id" };
+  }
+
+  if (!isValidObjectId(alert_id)) {
+    return { valid: false, error: "Invalid alert_id ObjectId format" };
+  }
+
+  // Required field: best_dates
+  if (best_dates === undefined || best_dates === null) {
+    return { valid: false, error: "Invalid or missing best_dates" };
+  }
+
+  // best_dates should be an array
+  if (!Array.isArray(best_dates)) {
+    return { valid: false, error: "best_dates must be an array" };
+  }
+
+  return { valid: true };
+}
+

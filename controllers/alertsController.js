@@ -8,6 +8,7 @@ import {
   validateAlertId,
   validateAndFormatDate,
   validateClusterCreation,
+  validateClusterUpdate,
 } from "../utils/validators.js";
 
 /**
@@ -317,6 +318,49 @@ export async function createCluster(req, res) {
   res.status(201).json({
     success: true,
     id: result.insertedId.toString(),
+  });
+}
+
+/**
+ * Update a cluster entry
+ * PATCH /v1/alerts/cluster
+ */
+export async function updateCluster(req, res) {
+  const validation = validateClusterUpdate(req.body);
+  if (!validation.valid) {
+    return res.status(400).json({
+      success: false,
+      error: validation.error,
+    });
+  }
+
+  const { alert_id, best_dates } = req.body;
+  const clusterCollection = await getClusterCollection();
+
+  const result = await clusterCollection.updateOne(
+    { alert_id: alert_id },
+    {
+      $set: {
+        best_dates: best_dates,
+        last_refreshed_at: new Date(),
+      },
+    }
+  );
+
+  if (result.matchedCount === 0) {
+    return res.status(404).json({
+      success: false,
+      error: "Cluster not found",
+    });
+  }
+
+  // Fetch updated document
+  const updatedCluster = await clusterCollection.findOne({ alert_id: alert_id });
+
+  res.json({
+    success: true,
+    updated: result.modifiedCount === 1,
+    data: updatedCluster,
   });
 }
 

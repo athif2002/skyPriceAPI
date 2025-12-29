@@ -6,6 +6,7 @@ import {
   editAlert,
   deleteAlert,
   createCluster,
+  updateCluster,
 } from "../controllers/alertsController.js";
 import { asyncHandler } from "../middleware/errorHandler.js";
 
@@ -19,6 +20,9 @@ router.post("/create", asyncHandler(createAlert));
 
 // POST /v1/alerts/cluster
 router.post("/cluster", asyncHandler(createCluster));
+
+// PATCH /v1/alerts/cluster
+router.patch("/cluster", asyncHandler(updateCluster));
 
 // GET /v1/alerts?email=
 router.get("/", asyncHandler(getAlerts));
