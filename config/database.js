@@ -25,6 +25,28 @@ export async function getCollection() {
 }
 
 /**
+ * Get MongoDB cluster collection instance
+ * Uses singleton pattern to maintain a single connection
+ * @returns {Promise<Collection>} MongoDB cluster collection
+ */
+export async function getClusterCollection() {
+  if (!client) {
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) {
+      throw new Error("MONGO_URI environment variable is required");
+    }
+
+    client = new MongoClient(mongoUri);
+    await client.connect();
+  }
+
+  const dbName = process.env.DB_NAME || "skyPrice";
+  const collectionName = "cluster";
+
+  return client.db(dbName).collection(collectionName);
+}
+
+/**
  * Close MongoDB connection
  * Useful for graceful shutdown
  */

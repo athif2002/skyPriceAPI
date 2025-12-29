@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { getCollection } from "../config/database.js";
+import { getCollection, getClusterCollection } from "../config/database.js";
 import {
   validateAlertCreation,
   validateAlertUpdate,
@@ -7,6 +7,7 @@ import {
   validateAlertEdit,
   validateAlertId,
   validateAndFormatDate,
+  validateClusterCreation,
 } from "../utils/validators.js";
 
 /**
@@ -285,6 +286,36 @@ export async function deleteAlert(req, res) {
   res.json({
     success: true,
     message: "Alert deleted successfully",
+  });
+}
+
+/**
+ * Create a new cluster entry
+ * POST /v1/alerts/cluster
+ */
+export async function createCluster(req, res) {
+  const validation = validateClusterCreation(req.body);
+  if (!validation.valid) {
+    return res.status(400).json({
+      success: false,
+      error: validation.error,
+    });
+  }
+
+  const { alert_id, best_dates } = req.body;
+  const clusterCollection = await getClusterCollection();
+
+  const doc = {
+    alert_id: new ObjectId(alert_id),
+    best_dates: best_dates,
+    created_at: new Date(),
+  };
+
+  const result = await clusterCollection.insertOne(doc);
+
+  res.status(201).json({
+    success: true,
+    id: result.insertedId.toString(),
   });
 }
 
