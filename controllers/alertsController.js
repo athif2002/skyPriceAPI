@@ -306,9 +306,10 @@ export async function createCluster(req, res) {
   const clusterCollection = await getClusterCollection();
 
   const doc = {
-    alert_id: new ObjectId(alert_id),
+    alert_id: alert_id,
     best_dates: best_dates,
     created_at: new Date(),
+    last_refreshed_at: new Date(),
   };
 
   const result = await clusterCollection.insertOne(doc);
