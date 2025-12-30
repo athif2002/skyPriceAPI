@@ -303,12 +303,14 @@ export async function createCluster(req, res) {
     });
   }
 
-  const { alert_id, best_dates } = req.body;
+  const { alert_id, best_dates, from, to } = req.body;
   const clusterCollection = await getClusterCollection();
 
   const doc = {
     alert_id: alert_id,
     best_dates: best_dates,
+    from: from.trim(),
+    to: to.trim(),
     created_at: new Date(),
     last_refreshed_at: new Date(),
   };

@@ -299,7 +299,7 @@ export function validateAlertId(id) {
  * @returns {{valid: boolean, error?: string}} Validation result
  */
 export function validateClusterCreation(data) {
-  const { alert_id, best_dates } = data;
+  const { alert_id, best_dates, from, to } = data;
 
   // Required field: alert_id
   if (!alert_id || typeof alert_id !== "string") {
@@ -318,6 +318,16 @@ export function validateClusterCreation(data) {
   // best_dates should be an array
   if (!Array.isArray(best_dates)) {
     return { valid: false, error: "best_dates must be an array" };
+  }
+
+  // Required field: from
+  if (!from || typeof from !== "string" || from.trim().length === 0) {
+    return { valid: false, error: "Invalid or missing from" };
+  }
+
+  // Required field: to
+  if (!to || typeof to !== "string" || to.trim().length === 0) {
+    return { valid: false, error: "Invalid or missing to" };
   }
 
   return { valid: true };
