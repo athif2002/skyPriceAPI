@@ -11,6 +11,24 @@ const app = express();
 app.use(express.json());
 app.use(corsConfig);
 
+// Response status code logging middleware (must be before routes)
+app.use((req, res, next) => {
+  const originalSend = res.send;
+  const originalJson = res.json;
+  
+  res.send = function(data) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - Status: ${res.statusCode}`);
+    return originalSend.call(this, data);
+  };
+  
+  res.json = function(data) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - Status: ${res.statusCode}`);
+    return originalJson.call(this, data);
+  };
+  
+  next();
+});
+
 // Handle preflight requests
 app.options("*", corsConfig);
 

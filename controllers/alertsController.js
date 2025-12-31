@@ -295,14 +295,31 @@ export async function deleteAlert(req, res) {
  * POST /v1/alerts/cluster
  */
 export async function createCluster(req, res) {
+  // Comprehensive logging
+  console.log('=== CREATE CLUSTER REQUEST ===');
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('req.body:', JSON.stringify(req.body, null, 2));
+  console.log('req.body type:', typeof req.body);
+  console.log('req.body keys:', Object.keys(req.body || {}));
+  console.log('Content-Type:', req.headers['content-type']);
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+
   const validation = validateClusterCreation(req.body);
+  console.log('Validation result:', JSON.stringify(validation, null, 2));
+
   if (!validation.valid) {
-    return res.status(400).json({
+    console.log('VALIDATION FAILED - Returning 400');
+    const response = {
       success: false,
       error: validation.error,
-    });
+    };
+    console.log('Response status: 400');
+    console.log('Response body:', JSON.stringify(response, null, 2));
+    return res.status(400).json(response);
   }
 
+  console.log('VALIDATION PASSED - Proceeding with insert');
   const { alert_id, best_dates, from, to } = req.body;
   const clusterCollection = await getClusterCollection();
 
@@ -315,12 +332,20 @@ export async function createCluster(req, res) {
     last_refreshed_at: new Date(),
   };
 
-  const result = await clusterCollection.insertOne(doc);
+  console.log('Document to insert:', JSON.stringify(doc, null, 2));
 
-  res.status(201).json({
+  const result = await clusterCollection.insertOne(doc);
+  console.log('Insert result - insertedId:', result.insertedId.toString());
+
+  const response = {
     success: true,
     id: result.insertedId.toString(),
-  });
+  };
+  console.log('Response status: 201');
+  console.log('Response body:', JSON.stringify(response, null, 2));
+  console.log('=== CREATE CLUSTER REQUEST END ===\n');
+
+  res.status(201).json(response);
 }
 
 /**
