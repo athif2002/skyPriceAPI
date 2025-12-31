@@ -9,10 +9,10 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-//app.use(corsConfig);
+app.use(corsConfig);
 
 // Handle preflight requests
-//app.options("*", corsConfig);
+app.options("*", corsConfig);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
