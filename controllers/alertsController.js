@@ -96,6 +96,7 @@ export async function createAlert(req, res) {
     email: email.trim().toLowerCase(),
     from: from.trim(),
     to: to.trim(),
+    isNew: true,
     created_at: new Date(),
   };
 
@@ -328,7 +329,6 @@ export async function createCluster(req, res) {
     best_dates: best_dates,
     from: from.trim(),
     to: to.trim(),
-    isNew: true,
     created_at: new Date(),
     last_refreshed_at: new Date(),
   };
