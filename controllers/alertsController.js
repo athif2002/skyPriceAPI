@@ -338,6 +338,18 @@ export async function createCluster(req, res) {
   const result = await clusterCollection.insertOne(doc);
   console.log('Insert result - insertedId:', result.insertedId.toString());
 
+  // Update the alert's isNew field to false
+  const alerts = await getCollection();
+  const alertUpdateResult = await alerts.updateOne(
+    { _id: new ObjectId(alert_id) },
+    {
+      $set: {
+        isNew: false,
+      },
+    }
+  );
+  console.log('Alert update result - matchedCount:', alertUpdateResult.matchedCount, 'modifiedCount:', alertUpdateResult.modifiedCount);
+
   const response = {
     success: true,
     id: result.insertedId.toString(),
